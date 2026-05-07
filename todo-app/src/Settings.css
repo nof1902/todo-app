@@ -1,0 +1,370 @@
+/* ─────────────────────────────────────────────────────────────────
+   Settings panel — all rules prefixed st- to avoid collisions
+   Mobile: slides up from bottom (bottom sheet)
+   Desktop (≥520px): fades in as a centered card
+   ───────────────────────────────────────────────────────────────── */
+
+/* ── Animations ── */
+@keyframes stSlideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+@keyframes stFadeIn {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+/* ── Backdrop ── */
+.st-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+/* ── Panel ── */
+.st-panel {
+  background: var(--surface);
+  width: 100%;
+  max-height: 92vh;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: stSlideUp 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+/* ── Panel header ── */
+.st-header {
+  display: flex;
+  align-items: center;
+  padding: 18px 20px 15px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.st-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+}
+
+.st-close {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+}
+
+.st-close:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* ── Scrollable body ── */
+.st-body {
+  overflow-y: auto;
+  flex: 1;
+  overscroll-behavior: contain;
+}
+
+/* ── Section ── */
+.st-section {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.st-section--last {
+  border-bottom: none;
+  padding-bottom: 28px;
+}
+
+.st-section-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.st-section-icon {
+  font-size: 0.92rem;
+  line-height: 1;
+}
+
+/* ── Theme swatches ── */
+.st-themes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.st-theme-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 4px;
+  border: 2px solid var(--border);
+  border-radius: 11px;
+  background: var(--bg);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.st-theme-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.st-theme-btn.is-active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.st-swatch {
+  display: block;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  flex-shrink: 0;
+}
+
+.st-theme-name {
+  font-size: 0.67rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+
+.st-theme-btn.is-active .st-theme-name {
+  color: var(--primary);
+}
+
+/* Small checkmark badge on active theme */
+.st-theme-check {
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.54rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Settings row — label on start, control on end ── */
+.st-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+}
+
+.st-row + .st-row {
+  border-top: 1px solid var(--border-light);
+}
+
+.st-row-label {
+  flex: 1;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+/* ── iOS-style toggle switch ── */
+.st-toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  background: #d1d5db;
+  position: relative;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.22s;
+}
+
+.st-toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.st-toggle.is-on {
+  background: var(--primary);
+}
+
+.st-toggle.is-on::after {
+  transform: translateX(18px);
+}
+
+/* ── Segment control (Comfortable / Compact) ── */
+.st-segment {
+  display: flex;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.st-seg-btn {
+  padding: 6px 13px;
+  border: none;
+  background: transparent;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.14s, color 0.14s;
+}
+
+.st-seg-btn + .st-seg-btn {
+  border-inline-start: 1.5px solid var(--border);
+}
+
+.st-seg-btn.is-active {
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* ── Select dropdown ── */
+.st-select-wrap {
+  position: relative;
+  flex-shrink: 0;
+  min-width: 148px;
+}
+
+.st-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  inset-inline-end: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 0.68rem;
+  pointer-events: none;
+}
+
+.st-select {
+  width: 100%;
+  padding: 7px 28px 7px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-family: inherit;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.st-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+
+/* ── Language buttons ── */
+.st-languages {
+  display: flex;
+  gap: 8px;
+}
+
+.st-lang-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 12px 8px;
+  border: 2px solid var(--border);
+  border-radius: 11px;
+  background: var(--bg);
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.st-lang-btn:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.st-lang-btn.is-active {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.st-lang-flag {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.st-lang-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.st-lang-btn.is-active .st-lang-name {
+  color: var(--primary);
+}
+
+/* ── Desktop: centered card ── */
+@media (min-width: 520px) {
+  .st-backdrop {
+    align-items: center;
+  }
+
+  .st-panel {
+    width: 460px;
+    border-radius: 18px;
+    max-height: 86vh;
+    animation: stFadeIn 0.2s ease-out;
+  }
+}

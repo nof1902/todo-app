@@ -1,0 +1,295 @@
+/* ─────────────────────────────────────────────────────
+   FilterPanel — compact filter card
+   Prefix: fp-  (avoids collisions with App.css names)
+   ───────────────────────────────────────────────────── */
+
+.fp {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+.fp-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.fp-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text);
+  flex: 1;
+  letter-spacing: 0.01em;
+}
+
+/* Small pill showing how many filters are active */
+.fp-active-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--primary);
+  color: white;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+/* "Clear all" button */
+.fp-clear {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.fp-clear:hover {
+  background: var(--danger-light);
+  color: var(--danger);
+}
+
+/* ── Controls row ── */
+.fp-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+}
+
+/* ── Search ── always occupies its own full-width row so the
+   three selects below always have the full width to share. */
+.fp-search-wrap {
+  position: relative;
+  flex: 1 1 100%;
+  display: flex;
+  align-items: center;
+}
+
+.fp-search-icon {
+  position: absolute;
+  inset-inline-start: 10px;
+  font-size: 0.78rem;
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}
+
+.fp-search {
+  width: 100%;
+  padding: 8px 32px 8px 32px; /* room for icon left + clear button right */
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+}
+
+.fp-search:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+  background: var(--surface);
+}
+
+.fp-search.is-active {
+  border-color: var(--primary);
+}
+
+/* Small × button inside the search input */
+.fp-search-clear {
+  position: absolute;
+  inset-inline-end: 8px;
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.72rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.12s, background 0.12s;
+}
+
+.fp-search-clear:hover {
+  color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* ── Select dropdowns ──
+   min-width: 145px is the minimum needed to display "All importance"
+   (longest option) at 0.84rem with left+right padding, without clipping.
+   flex-shrink defaults to 1 but min-width acts as a hard floor. */
+.fp-select-wrap {
+  position: relative;
+  flex: 1 1 145px;
+  min-width: 145px;
+}
+
+/* Custom arrow (hides the browser default) */
+.fp-select-wrap::after {
+  content: '▾';
+  position: absolute;
+  inset-inline-end: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-faint);
+  font-size: 0.7rem;
+  pointer-events: none;
+}
+
+.fp-select {
+  width: 100%;
+  padding: 8px 28px 8px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-family: inherit;
+  font-weight: 500;
+  appearance: none;
+  -webkit-appearance: none;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.fp-select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+
+/* Highlight the select when a non-default value is chosen */
+.fp-select.is-active {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ── Custom date range ───────────────────────────────────────────
+   Side-by-side layout: [From field]  —  [To field]
+   Each .fp-date-field grows equally (flex:1).
+   Stack vertically only on very narrow screens (<400px).          */
+.fp-custom-range {
+  display: flex;
+  align-items: flex-end;   /* align — separator with the bottom of inputs */
+  gap: 10px;
+  padding: 0 16px 12px;
+}
+
+/* Wraps one label + one date picker together as a single flex item */
+.fp-date-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;     /* allow shrinking below content size if needed */
+}
+
+.fp-range-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.fp-range-sep {
+  color: var(--text-faint);
+  font-size: 1rem;
+  flex-shrink: 0;
+  padding-bottom: 8px;   /* visually align with input midpoint */
+  line-height: 1;
+}
+
+/* The <input> rendered by react-datepicker inside each field */
+.fp-date-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.84rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.fp-date-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.08);
+}
+
+/* Mobile only: stack vertically when screen is very narrow */
+@media (max-width: 400px) {
+  .fp-custom-range {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .fp-range-sep {
+    display: none;
+  }
+}
+
+/* ── Active filter chips ── */
+.fp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 12px;
+}
+
+.fp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 6px 3px 10px;
+  border-radius: 999px;
+  background: var(--primary-light);
+  color: var(--primary);
+  font-size: 0.73rem;
+  font-weight: 600;
+  border: 1px solid rgba(79, 70, 229, 0.2);
+  /* max-width guards against very long search queries only.
+     Status/importance/date label chips are short and never hit this limit. */
+  max-width: 260px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The × button inside each chip */
+.fp-chip-x {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 1px 3px;
+  border-radius: 50%;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.12s;
+}
+
+.fp-chip-x:hover {
+  background: rgba(79, 70, 229, 0.2);
+}
+
+/* No desktop override needed — the flex layout above handles all
+   screen sizes cleanly without forcing nowrap that causes clipping. */

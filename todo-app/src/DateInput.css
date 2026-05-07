@@ -1,0 +1,264 @@
+/*
+  DateInput.css — react-datepicker overrides
+  Three-view calendar: Day → Month → Year (all inside the same popup)
+
+  Day view:   normal calendar grid
+  Month view: 4×3 grid of month abbreviations
+  Year view:  4×3 grid of 12 years with range navigation
+
+  Popup is rendered via portalId="dp-root" (a direct <body> child),
+  so the modal's overflow:hidden and CSS transforms cannot clip it.
+*/
+
+/* ── Wrapper layout ─────────────────────────────────────────────────
+   react-datepicker wraps <input> in two block-level divs.
+   Force them full-width so the input fills its parent cell.         */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  display: block;
+  width: 100%;
+}
+
+/* ── Portal ─────────────────────────────────────────────────────────
+   #dp-root sits at <body> level. Calendar renders here, above
+   everything else (above modal z-index 1000).                       */
+#dp-root {
+  position: relative;
+  z-index: 9000;
+}
+
+.react-datepicker-popper {
+  z-index: 9000;
+}
+
+/* ── Calendar card ──────────────────────────────────────────────── */
+.app-cal {
+  font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 0.84rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06);
+  /* No overflow:hidden — would clip picker bodies and native controls */
+}
+
+/* react-datepicker renders renderCustomHeader output inside this div */
+.app-cal .react-datepicker__header {
+  background: transparent;  /* dp-header provides its own blue background */
+  border-bottom: none;
+  padding: 0;
+}
+
+/* Day-of-week row lives inside the header — needs blue background */
+.app-cal .react-datepicker__day-names {
+  background: #4f46e5;
+}
+
+.app-cal .react-datepicker__day-name {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 600;
+  width: 2rem;
+  line-height: 2rem;
+}
+
+/* ── Picker mode — hides day grid when showing month or year view ── */
+.app-cal.is-picker-view .react-datepicker__day-names,
+.app-cal.is-picker-view .react-datepicker__month,
+.app-cal.is-picker-view .react-datepicker__today-button {
+  display: none;
+}
+
+/* ── Header row — shared by all three views ─────────────────────────
+   Carries its own indigo background and rounded top corners.         */
+.dp-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 8px 8px;
+  background: #4f46e5;
+  border-radius: 14px 14px 0 0;
+}
+
+/* ── Non-clickable centre label (year range: "2020 – 2031") ── */
+.dp-label {
+  flex: 1;
+  text-align: center;
+  color: #ffffff;          /* white on indigo ✓ */
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: inherit;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* ── Clickable centre label (opens next picker level) ── */
+.dp-label-btn {
+  flex: 1;
+  text-align: center;
+  color: #ffffff;          /* white on indigo ✓ */
+  font-size: 0.88rem;
+  font-weight: 700;
+  font-family: inherit;
+  background: rgba(255, 255, 255, 0.13);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.dp-label-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Small downward indicator — tells users the label is clickable */
+.dp-label-btn::after {
+  content: ' ▾';
+  font-size: 0.62rem;
+  opacity: 0.72;
+}
+
+/* ── Navigation arrow buttons (shared by all views) ── */
+.dp-nav {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.14);
+  color: #ffffff;          /* white on indigo ✓ */
+  font-size: 1.05rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.dp-nav:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.dp-nav:disabled {
+  opacity: 0.28;
+  cursor: not-allowed;
+}
+
+/* ── Picker body ─────────────────────────────────────────────────────
+   Unified white grid used for BOTH month and year pickers.
+   4-column layout ensures months (Jan…Dec) and years (2020…2031)
+   look identical in structure, spacing, and proportions.             */
+.dp-picker-body {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 10px 8px 14px;
+  background: #ffffff;
+  border-radius: 0 0 14px 14px;   /* match card bottom corners */
+}
+
+/* ── Cell button — used for both month abbreviations and year numbers ── */
+.dp-cell {
+  padding: 9px 2px;
+  border: 1.5px solid transparent;
+  border-radius: 7px;
+  background: transparent;
+  color: #374151;          /* dark grey on white — clearly readable ✓ */
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.3;
+  transition: background 0.13s, color 0.13s, border-color 0.13s;
+}
+
+.dp-cell:hover {
+  background: #eef2ff;     /* very light indigo */
+  color: #4f46e5;          /* indigo text on light indigo ✓ */
+  border-color: #c7d2fe;
+}
+
+/* Currently selected month or year */
+.dp-cell--active {
+  background: #4f46e5;     /* indigo */
+  color: #ffffff;          /* white on indigo ✓ */
+  font-weight: 700;
+  border-color: #4f46e5;
+}
+
+.dp-cell--active:hover {
+  background: #4338ca;
+  border-color: #4338ca;
+}
+
+/* ── Day cells ── */
+.app-cal .react-datepicker__day {
+  width: 2rem;
+  line-height: 2rem;
+  border-radius: 6px;
+  color: #111827;
+  transition: background 0.1s, color 0.1s;
+}
+
+.app-cal .react-datepicker__day:hover:not(.react-datepicker__day--selected) {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.app-cal .react-datepicker__day--selected,
+.app-cal .react-datepicker__day--keyboard-selected {
+  background: #4f46e5 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 6px;
+}
+
+.app-cal .react-datepicker__day--selected:hover,
+.app-cal .react-datepicker__day--keyboard-selected:hover {
+  background: #4338ca !important;
+}
+
+.app-cal .react-datepicker__day--today:not(.react-datepicker__day--selected) {
+  font-weight: 700;
+  color: #4f46e5;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.app-cal .react-datepicker__day--outside-month {
+  color: #9ca3af;
+}
+
+/* ── "Today" shortcut button ── */
+.app-cal .react-datepicker__today-button {
+  background: #f8f9fc;
+  border-top: 1px solid #e5e7eb;
+  color: #4f46e5;
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 7px 0;
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: 0 0 14px 14px;
+}
+
+.app-cal .react-datepicker__today-button:hover {
+  background: #eef2ff;
+}
+
+/* ── Popup triangle ── */
+.react-datepicker-popper[data-placement^="bottom"]
+  .react-datepicker__triangle::before {
+  border-bottom-color: #e5e7eb;
+}
+
+.react-datepicker-popper[data-placement^="bottom"]
+  .react-datepicker__triangle::after {
+  border-bottom-color: #4f46e5;
+}
