@@ -1,61 +1,20 @@
 import { useState, useEffect, useRef } from 'react'
+import { Pencil, Trash2, MoreHorizontal, Check, Calendar } from 'lucide-react'
+import { CARD_TRANSLATIONS } from './i18n/translations'
 
-// ── SVG icons — inline so no icon library is needed ───────────────
+// ── Date formatting helpers ────────────────────────────────────────
 
-function IconEdit() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true">
-      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-    </svg>
-  )
-}
-
-function IconDelete() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-      aria-hidden="true">
-      <polyline points="3 6 5 6 21 6"/>
-      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-    </svg>
-  )
-}
-
-function IconMore() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <circle cx="5"  cy="12" r="2"/>
-      <circle cx="12" cy="12" r="2"/>
-      <circle cx="19" cy="12" r="2"/>
-    </svg>
-  )
-}
-
-// ── Date formatting helpers (self-contained so TaskCard has no deps on App) ──
-
-// Converts "2026-05-07" → "07/05/2026"  (Israeli dd/mm/yyyy format)
 function formatDate(str) {
   if (!str) return ''
   const [y, m, d] = str.split('-')
   return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`
 }
 
-// The time input stores values as "HH:MM" (24-hour), which is already
-// the correct Israeli format. Return it directly — no conversion needed.
 function formatTime(str) {
   if (!str) return ''
-  return str  // e.g. "14:00"
+  return str
 }
 
-// Produces the full date label shown on task cards.
-// Examples:
-//   "07/05/2026"
-//   "07/05/2026 – 17/05/2026"
-//   "07/05/2026, 14:00"
-//   "07/05/2026 – 17/05/2026, 14:00"
 function formatDateRange(startDate, endDate, dueTime) {
   const start = formatDate(startDate)
   const end   = formatDate(endDate)
@@ -65,23 +24,14 @@ function formatDateRange(startDate, endDate, dueTime) {
   return date || time
 }
 
-// ── UI strings ────────────────────────────────────────────────────
-const UI = {
-  editLabel:   'Edit task',
-  deleteLabel: 'Delete task',
-  moreLabel:   'More actions',
-  editText:    'Edit',
-  deleteText:  'Delete',
-  deleteConfirm: 'Delete this task?',
-}
-
 // ── TaskCard component ────────────────────────────────────────────
 
-function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, onQuickComplete }) {
+function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, onQuickComplete, language }) {
+  const lx = CARD_TRANSLATIONS[language] ?? CARD_TRANSLATIONS.en
+
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
-  // Close the ⋯ menu when the user clicks or taps anywhere outside it
   useEffect(() => {
     if (!menuOpen) return
     function handleOutside(e) {
@@ -97,7 +47,8 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
     }
   }, [menuOpen])
 
-  const status     = statusOptions.find(s => s.value === task.status)     ?? statusOptions[0]
+  // statusOptions and importanceOptions arrive pre-translated from App.jsx
+  const status     = statusOptions.find(s => s.value === task.status)         ?? statusOptions[0]
   const importance = importanceOptions.find(i => i.value === task.importance) ?? importanceOptions[2]
   const dateLabel  = formatDateRange(task.startDate, task.endDate, task.dueTime)
 
@@ -110,7 +61,7 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
   function handleDeleteClick(e) {
     e.stopPropagation()
     setMenuOpen(false)
-    if (window.confirm(UI.deleteConfirm)) {
+    if (window.confirm(lx.deleteConfirm)) {
       onDelete(task.id)
     }
   }
@@ -129,10 +80,10 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
       {/* Circle — quick-complete toggle */}
       <button
         className="check-btn"
-        aria-label="Toggle complete"
+        aria-label={lx.toggleComplete}
         onClick={e => { e.stopPropagation(); onQuickComplete(task.id) }}
       >
-        {task.status === 'completed' ? '✓' : ''}
+        {task.status === 'completed' && <Check size={12} strokeWidth={3} aria-hidden="true" />}
       </button>
 
       {/* Task body */}
@@ -155,7 +106,10 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
             {importance.label}
           </span>
           {dateLabel && (
-            <span className="badge deadline-badge">📅 {dateLabel}</span>
+            <span className="badge deadline-badge">
+              <Calendar size={11} strokeWidth={2} aria-hidden="true" />
+              {dateLabel}
+            </span>
           )}
         </div>
 
@@ -163,40 +117,39 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
       </div>
 
       {/*
-        Quick actions — two separate UX patterns:
-        - Desktop (hover capable): individual icon buttons, hidden until the card is hovered.
-        - Mobile (touch): a single ⋯ button always visible, opens a small dropdown.
-        CSS @media (hover: hover / none) switches between the two.
+        Quick actions — two UX modes:
+        Desktop (hover): individual icon buttons, hidden until card is hovered.
+        Mobile (touch): single ⋯ button always visible, opens dropdown.
       */}
       <div className="task-actions" onClick={e => e.stopPropagation()}>
 
         {/* Desktop hover buttons */}
         <button
           className="task-action-btn task-action-edit"
-          title={UI.editLabel}
-          aria-label={UI.editLabel}
+          title={lx.editLabel}
+          aria-label={lx.editLabel}
           onClick={handleEditClick}
         >
-          <IconEdit />
+          <Pencil size={14} strokeWidth={2} aria-hidden="true" />
         </button>
         <button
           className="task-action-btn task-action-delete"
-          title={UI.deleteLabel}
-          aria-label={UI.deleteLabel}
+          title={lx.deleteLabel}
+          aria-label={lx.deleteLabel}
           onClick={handleDeleteClick}
         >
-          <IconDelete />
+          <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
         </button>
 
         {/* Mobile three-dots menu */}
         <div className="task-menu-wrap" ref={menuRef}>
           <button
             className="task-menu-btn"
-            title={UI.moreLabel}
-            aria-label={UI.moreLabel}
+            title={lx.moreLabel}
+            aria-label={lx.moreLabel}
             onClick={handleMenuToggle}
           >
-            <IconMore />
+            <MoreHorizontal size={16} strokeWidth={2} aria-hidden="true" />
           </button>
 
           {menuOpen && (
@@ -206,14 +159,16 @@ function TaskCard({ task, statusOptions, importanceOptions, onEdit, onDelete, on
                 role="menuitem"
                 onClick={handleEditClick}
               >
-                <IconEdit /> {UI.editText}
+                <Pencil size={14} strokeWidth={2} aria-hidden="true" />
+                {lx.editText}
               </button>
               <button
                 className="task-menu-item task-menu-item--danger"
                 role="menuitem"
                 onClick={handleDeleteClick}
               >
-                <IconDelete /> {UI.deleteText}
+                <Trash2 size={14} strokeWidth={2} aria-hidden="true" />
+                {lx.deleteText}
               </button>
             </div>
           )}

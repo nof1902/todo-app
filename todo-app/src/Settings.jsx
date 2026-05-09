@@ -1,3 +1,4 @@
+import { Palette, Monitor, ClipboardList, Languages, X, Check } from 'lucide-react'
 import './Settings.css'
 
 const THEMES = [
@@ -7,10 +8,11 @@ const THEMES = [
   { id: 'warm-neutral', label: 'Warm Amber', primary: '#d97706', bg: '#fef3c7' },
 ]
 
+// display: short text code shown on the language button
 const LANGUAGES = [
-  { code: 'en', flag: '🇺🇸', name: 'English' },
-  { code: 'he', flag: '🇮🇱', name: 'עברית' },
-  { code: 'es', flag: '🇪🇸', name: 'Español' },
+  { code: 'en', display: 'EN', name: 'English' },
+  { code: 'he', display: 'עב', name: 'עברית' },
+  { code: 'es', display: 'ES', name: 'Español' },
 ]
 
 // All UI strings for the Settings panel, keyed by language
@@ -28,20 +30,6 @@ const L = {
     bgPattern:     'Background pattern',
     defStatus:     'Default status',
     defImportance: 'Default importance',
-    status: {
-      'not-started':    'Not Started',
-      'in-progress':    'In Progress',
-      'almost-done':    'Almost Done',
-      'partially-done': 'Partially Done',
-      'completed':      'Completed',
-    },
-    importance: {
-      'critical':  'Critical',
-      'important': 'Important',
-      'medium':    'Medium',
-      'low':       'Low',
-      'optional':  'Optional',
-    },
   },
   he: {
     title:         'הגדרות',
@@ -56,20 +44,6 @@ const L = {
     bgPattern:     'תבנית רקע',
     defStatus:     'סטטוס ברירת מחדל',
     defImportance: 'חשיבות ברירת מחדל',
-    status: {
-      'not-started':    'לא התחיל',
-      'in-progress':    'בתהליך',
-      'almost-done':    'כמעט מוכן',
-      'partially-done': 'בוצע חלקית',
-      'completed':      'הושלם',
-    },
-    importance: {
-      'critical':  'קריטי',
-      'important': 'חשוב',
-      'medium':    'בינוני',
-      'low':       'נמוך',
-      'optional':  'אופציונלי',
-    },
   },
   es: {
     title:         'Configuración',
@@ -84,20 +58,6 @@ const L = {
     bgPattern:     'Patrón de fondo',
     defStatus:     'Estado predeterminado',
     defImportance: 'Importancia predeterminada',
-    status: {
-      'not-started':    'Sin empezar',
-      'in-progress':    'En progreso',
-      'almost-done':    'Casi listo',
-      'partially-done': 'Parcialmente',
-      'completed':      'Completado',
-    },
-    importance: {
-      'critical':  'Crítico',
-      'important': 'Importante',
-      'medium':    'Medio',
-      'low':       'Bajo',
-      'optional':  'Opcional',
-    },
   },
 }
 
@@ -134,7 +94,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
             onClick={onClose}
             aria-label="Close"
           >
-            ✕
+            <X size={14} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
 
@@ -143,7 +103,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
           {/* ── Section: Appearance ── */}
           <section className="st-section">
             <h3 className="st-section-title">
-              <span className="st-section-icon">🎨</span>
+              <span className="st-section-icon"><Palette size={14} strokeWidth={2} aria-hidden="true" /></span>
               {lx.appearance}
             </h3>
             <div className="st-themes">
@@ -163,7 +123,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
                   />
                   <span className="st-theme-name">{theme.label}</span>
                   {settings.theme === theme.id && (
-                    <span className="st-theme-check" aria-hidden="true">✓</span>
+                    <span className="st-theme-check" aria-hidden="true"><Check size={9} strokeWidth={3} /></span>
                   )}
                 </button>
               ))}
@@ -173,7 +133,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
           {/* ── Section: Display ── */}
           <section className="st-section">
             <h3 className="st-section-title">
-              <span className="st-section-icon">🖥</span>
+              <span className="st-section-icon"><Monitor size={14} strokeWidth={2} aria-hidden="true" /></span>
               {lx.display}
             </h3>
 
@@ -217,7 +177,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
           {/* ── Section: New Task Defaults ── */}
           <section className="st-section">
             <h3 className="st-section-title">
-              <span className="st-section-icon">📋</span>
+              <span className="st-section-icon"><ClipboardList size={14} strokeWidth={2} aria-hidden="true" /></span>
               {lx.defaults}
             </h3>
 
@@ -233,9 +193,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
                   onChange={e => onUpdate('defaultStatus', e.target.value)}
                 >
                   {statusOptions.map(o => (
-                    <option key={o.value} value={o.value}>
-                      {lx.status[o.value] ?? o.label}
-                    </option>
+                    <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
               </div>
@@ -253,9 +211,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
                   onChange={e => onUpdate('defaultImportance', e.target.value)}
                 >
                   {importanceOptions.map(o => (
-                    <option key={o.value} value={o.value}>
-                      {lx.importance[o.value] ?? o.label}
-                    </option>
+                    <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
               </div>
@@ -265,7 +221,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
           {/* ── Section: Language ── */}
           <section className="st-section st-section--last">
             <h3 className="st-section-title">
-              <span className="st-section-icon">🌐</span>
+              <span className="st-section-icon"><Languages size={14} strokeWidth={2} aria-hidden="true" /></span>
               {lx.language}
             </h3>
             <div className="st-languages">
@@ -276,7 +232,7 @@ function Settings({ settings, onUpdate, onClose, statusOptions, importanceOption
                   className={`st-lang-btn${settings.language === lang.code ? ' is-active' : ''}`}
                   onClick={() => onUpdate('language', lang.code)}
                 >
-                  <span className="st-lang-flag">{lang.flag}</span>
+                  <span className="st-lang-code">{lang.display}</span>
                   <span className="st-lang-name">{lang.name}</span>
                 </button>
               ))}

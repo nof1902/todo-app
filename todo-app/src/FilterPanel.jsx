@@ -1,3 +1,4 @@
+import { Search, X } from 'lucide-react'
 import './FilterPanel.css'
 import DateInput from './DateInput'
 
@@ -8,35 +9,18 @@ function shortDate(str) {
   return `${d.padStart(2, '0')}/${m.padStart(2, '0')}/${y}`
 }
 
-// ── All visible strings, keyed by language ────────────────────────
+// ── Filter panel UI strings, keyed by language ────────────────────
+// Status and importance option labels are NOT duplicated here — they
+// arrive pre-translated via the statusOptions / importanceOptions props
+// (computed in App.jsx from the shared src/i18n/translations.js file).
 const FP_LABELS = {
   en: {
     title:             'Filters',
     clearAll:          'Clear all',
     active:            n => `${n} active`,
     searchPlaceholder: 'Search tasks…',
-    status: {
-      label: 'Status',
-      all:   'All statuses',
-      options: {
-        'not-started':    'Not Started',
-        'in-progress':    'In Progress',
-        'almost-done':    'Almost Done',
-        'partially-done': 'Partially Done',
-        'completed':      'Completed',
-      },
-    },
-    importance: {
-      label: 'Importance',
-      all:   'All importance',
-      options: {
-        'critical':  'Critical',
-        'important': 'Important',
-        'medium':    'Medium',
-        'low':       'Low',
-        'optional':  'Optional',
-      },
-    },
+    status:    { label: 'Status',     all: 'All statuses' },
+    importance: { label: 'Importance', all: 'All importance' },
     date: {
       label:    'Date',
       all:      'All dates',
@@ -54,28 +38,8 @@ const FP_LABELS = {
     clearAll:          'נקה הכול',
     active:            n => n === 1 ? 'סינון אחד פעיל' : `${n} סינונים פעילים`,
     searchPlaceholder: 'חיפוש משימות...',
-    status: {
-      label: 'סטטוס',
-      all:   'כל הסטטוסים',
-      options: {
-        'not-started':    'טרם התחיל',
-        'in-progress':    'בתהליך',
-        'almost-done':    'לקראת סיום',
-        'partially-done': 'בוצע חלקית',
-        'completed':      'בוצע',
-      },
-    },
-    importance: {
-      label: 'חשיבות',
-      all:   'כל רמות החשיבות',
-      options: {
-        'critical':  'קריטי',
-        'important': 'חשוב',
-        'medium':    'בינוני',
-        'low':       'נמוך',
-        'optional':  'אופציונלי',
-      },
-    },
+    status:    { label: 'סטטוס',   all: 'כל הסטטוסים' },
+    importance: { label: 'חשיבות', all: 'כל רמות החשיבות' },
     date: {
       label:    'תאריך',
       all:      'כל התאריכים',
@@ -93,28 +57,8 @@ const FP_LABELS = {
     clearAll:          'Limpiar todo',
     active:            n => n === 1 ? '1 activo' : `${n} activos`,
     searchPlaceholder: 'Buscar tareas...',
-    status: {
-      label: 'Estado',
-      all:   'Todos los estados',
-      options: {
-        'not-started':    'No iniciado',
-        'in-progress':    'En proceso',
-        'almost-done':    'Casi terminado',
-        'partially-done': 'Parcialmente completado',
-        'completed':      'Completado',
-      },
-    },
-    importance: {
-      label: 'Prioridad',
-      all:   'Todas las prioridades',
-      options: {
-        'critical':  'Crítico',
-        'important': 'Importante',
-        'medium':    'Medio',
-        'low':       'Bajo',
-        'optional':  'Opcional',
-      },
-    },
+    status:    { label: 'Estado',    all: 'Todos los estados' },
+    importance: { label: 'Prioridad', all: 'Todas las prioridades' },
     date: {
       label:    'Fecha',
       all:      'Todas las fechas',
@@ -148,7 +92,6 @@ function FilterPanel({
   importanceOptions,
   language,
 }) {
-  // Resolved label set — falls back to English if language is unknown
   const lx = FP_LABELS[language] ?? FP_LABELS.en
 
   const hasSearch     = filters.search.trim() !== ''
@@ -181,7 +124,9 @@ function FilterPanel({
 
         {/* Search */}
         <div className="fp-search-wrap">
-          <span className="fp-search-icon" aria-hidden="true">🔍</span>
+          <span className="fp-search-icon" aria-hidden="true">
+            <Search size={14} strokeWidth={2} />
+          </span>
           <input
             type="text"
             className={`fp-search${hasSearch ? ' is-active' : ''}`}
@@ -196,12 +141,12 @@ function FilterPanel({
               onClick={() => set('search', '')}
               aria-label="Clear search"
             >
-              ✕
+              <X size={12} strokeWidth={2.5} aria-hidden="true" />
             </button>
           )}
         </div>
 
-        {/* Status — value is always the stable internal key */}
+        {/* Status — value is always the stable internal key; opt.label is pre-translated */}
         <div className="fp-select-wrap">
           <select
             className={`fp-select${hasStatus ? ' is-active' : ''}`}
@@ -211,14 +156,12 @@ function FilterPanel({
           >
             <option value="all">{lx.status.all}</option>
             {statusOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>
-                {lx.status.options[opt.value] ?? opt.label}
-              </option>
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
         </div>
 
-        {/* Importance — value is always the stable internal key */}
+        {/* Importance — value is always the stable internal key; opt.label is pre-translated */}
         <div className="fp-select-wrap">
           <select
             className={`fp-select${hasImportance ? ' is-active' : ''}`}
@@ -228,9 +171,7 @@ function FilterPanel({
           >
             <option value="all">{lx.importance.all}</option>
             {importanceOptions.map(opt => (
-              <option key={opt.value} value={opt.value}>
-                {lx.importance.options[opt.value] ?? opt.label}
-              </option>
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
         </div>
@@ -282,19 +223,37 @@ function FilterPanel({
           {hasSearch && (
             <span className="fp-chip">
               "{filters.search.trim()}"
-              <button className="fp-chip-x" onClick={() => set('search', '')}>✕</button>
+              <button
+                className="fp-chip-x"
+                onClick={() => set('search', '')}
+                aria-label="Remove search filter"
+              >
+                <X size={10} strokeWidth={2.5} aria-hidden="true" />
+              </button>
             </span>
           )}
           {hasStatus && (
             <span className="fp-chip">
-              {lx.status.options[filters.status] ?? filters.status}
-              <button className="fp-chip-x" onClick={() => set('status', 'all')}>✕</button>
+              {statusOptions.find(s => s.value === filters.status)?.label ?? filters.status}
+              <button
+                className="fp-chip-x"
+                onClick={() => set('status', 'all')}
+                aria-label="Remove status filter"
+              >
+                <X size={10} strokeWidth={2.5} aria-hidden="true" />
+              </button>
             </span>
           )}
           {hasImportance && (
             <span className="fp-chip">
-              {lx.importance.options[filters.importance] ?? filters.importance}
-              <button className="fp-chip-x" onClick={() => set('importance', 'all')}>✕</button>
+              {importanceOptions.find(i => i.value === filters.importance)?.label ?? filters.importance}
+              <button
+                className="fp-chip-x"
+                onClick={() => set('importance', 'all')}
+                aria-label="Remove importance filter"
+              >
+                <X size={10} strokeWidth={2.5} aria-hidden="true" />
+              </button>
             </span>
           )}
           {hasDate && (
@@ -306,7 +265,10 @@ function FilterPanel({
               <button
                 className="fp-chip-x"
                 onClick={() => { set('date', 'all'); set('customFrom', ''); set('customTo', '') }}
-              >✕</button>
+                aria-label="Remove date filter"
+              >
+                <X size={10} strokeWidth={2.5} aria-hidden="true" />
+              </button>
             </span>
           )}
         </div>

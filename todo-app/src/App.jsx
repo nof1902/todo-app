@@ -1,27 +1,12 @@
 import { useState, useEffect } from 'react'
+import { Check, Settings as SettingsIcon, ClipboardList, SearchX } from 'lucide-react'
 import './App.css'
 import TaskModal from './TaskModal'
 import FilterPanel from './FilterPanel'
 import TaskCard from './TaskCard'
 import Settings from './Settings'
 import { useSettings, TRANSLATIONS } from './useSettings'
-
-// ── Status and importance options (shared with TaskModal + TaskCard) ──
-export const STATUS_OPTIONS = [
-  { value: 'not-started',    label: 'Not Started',    color: '#6b7280' },
-  { value: 'in-progress',    label: 'In Progress',    color: '#3b82f6' },
-  { value: 'almost-done',    label: 'Almost Done',    color: '#8b5cf6' },
-  { value: 'partially-done', label: 'Partially Done', color: '#f59e0b' },
-  { value: 'completed',      label: 'Completed',      color: '#10b981' },
-]
-
-export const IMPORTANCE_OPTIONS = [
-  { value: 'critical',  label: 'Critical',  color: '#ef4444' },
-  { value: 'important', label: 'Important', color: '#f97316' },
-  { value: 'medium',    label: 'Medium',    color: '#3b82f6' },
-  { value: 'low',       label: 'Low',       color: '#6b7280' },
-  { value: 'optional',  label: 'Optional',  color: '#9ca3af' },
-]
+import { STATUS_OPTIONS, IMPORTANCE_OPTIONS, getLabel } from './i18n/translations'
 
 // ── Filter default state ──────────────────────────────────────────
 const FILTERS_DEFAULT = {
@@ -121,16 +106,19 @@ function taskMatchesDateFilter(task, dateFilter, customFrom, customTo) {
 function App() {
   const { settings, updateSetting } = useSettings()
 
-  const [tasks, setTasks]             = useState(loadTasks)
-  const [filters, setFilters]         = useState(FILTERS_DEFAULT)
-  const [newText, setNewText]         = useState('')
-  const [editingTask, setEditingTask] = useState(null)
+  const [tasks, setTasks]               = useState(loadTasks)
+  const [filters, setFilters]           = useState(FILTERS_DEFAULT)
+  const [newText, setNewText]           = useState('')
+  const [editingTask, setEditingTask]   = useState(null)
   const [settingsOpen, setSettingsOpen] = useState(false)
 
   useEffect(() => { saveTasks(tasks) }, [tasks])
 
-  // Active translation set based on current language setting
-  const UI = TRANSLATIONS[settings.language] ?? TRANSLATIONS.en
+  // Active UI strings and flat translated option arrays, recomputed when language changes
+  const lang            = settings.language
+  const UI              = TRANSLATIONS[lang] ?? TRANSLATIONS.en
+  const statusOptions   = STATUS_OPTIONS.map(o => ({ ...o, label: getLabel(o, lang) }))
+  const importanceOptions = IMPORTANCE_OPTIONS.map(o => ({ ...o, label: getLabel(o, lang) }))
 
   function handleFilterChange(key, value) {
     setFilters(prev => ({ ...prev, [key]: value }))
@@ -207,7 +195,7 @@ function App() {
       <div className="container">
 
         <header className="header">
-          <div className="header-icon">✓</div>
+          <div className="header-icon"><Check size={22} strokeWidth={3} aria-hidden="true" /></div>
           <div className="header-text">
             <h1 className="title">{UI.appTitle}</h1>
             <p className="subtitle">{UI.appSubtitle}</p>
@@ -219,7 +207,7 @@ function App() {
             aria-label={UI.settingsLabel}
             title={UI.settingsLabel}
           >
-            ⚙
+            <SettingsIcon size={18} aria-hidden="true" />
           </button>
         </header>
 
@@ -241,9 +229,9 @@ function App() {
           onFilterChange={handleFilterChange}
           onClear={handleClearFilters}
           activeCount={activeFilterCount}
-          statusOptions={STATUS_OPTIONS}
-          importanceOptions={IMPORTANCE_OPTIONS}
-          language={settings.language}
+          statusOptions={statusOptions}
+          importanceOptions={importanceOptions}
+          language={lang}
         />
 
         {/* Task list */}
@@ -253,18 +241,21 @@ function App() {
               <TaskCard
                 key={task.id}
                 task={task}
-                statusOptions={STATUS_OPTIONS}
-                importanceOptions={IMPORTANCE_OPTIONS}
+                statusOptions={statusOptions}
+                importanceOptions={importanceOptions}
                 onEdit={setEditingTask}
                 onDelete={handleDeleteTask}
                 onQuickComplete={handleQuickComplete}
+                language={lang}
               />
             ))}
           </ul>
         ) : (
           <div className="empty-state">
             <div className="empty-icon">
-              {activeFilterCount > 0 ? UI.emptyNoMatchIcon : UI.emptyNoTasksIcon}
+              {activeFilterCount > 0
+                ? <SearchX size={44} strokeWidth={1.5} aria-hidden="true" />
+                : <ClipboardList size={44} strokeWidth={1.5} aria-hidden="true" />}
             </div>
             <p className="empty-title">
               {activeFilterCount > 0 ? UI.emptyNoMatch : UI.emptyNoTasks}
@@ -289,11 +280,12 @@ function App() {
       {editingTask && (
         <TaskModal
           task={editingTask}
-          statusOptions={STATUS_OPTIONS}
-          importanceOptions={IMPORTANCE_OPTIONS}
+          statusOptions={statusOptions}
+          importanceOptions={importanceOptions}
           onSave={handleSaveTask}
           onDelete={handleDeleteTask}
           onClose={() => setEditingTask(null)}
+          language={lang}
         />
       )}
 
@@ -302,8 +294,8 @@ function App() {
           settings={settings}
           onUpdate={updateSetting}
           onClose={() => setSettingsOpen(false)}
-          statusOptions={STATUS_OPTIONS}
-          importanceOptions={IMPORTANCE_OPTIONS}
+          statusOptions={statusOptions}
+          importanceOptions={importanceOptions}
         />
       )}
     </div>

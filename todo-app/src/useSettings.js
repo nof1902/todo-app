@@ -24,8 +24,6 @@ export const TRANSLATIONS = {
     emptyNoMatch:    'No matching tasks',
     emptyNoTasksSub: 'Add a task above to get started.',
     emptyNoMatchSub: 'Try adjusting your filters.',
-    emptyNoTasksIcon: '🎉',
-    emptyNoMatchIcon: '🔍',
     settingsLabel:   'Settings',
   },
   he: {
@@ -39,8 +37,6 @@ export const TRANSLATIONS = {
     emptyNoMatch:    'לא נמצאו משימות',
     emptyNoTasksSub: 'הוסף משימה למעלה כדי להתחיל.',
     emptyNoMatchSub: 'נסה לשנות את הפילטרים.',
-    emptyNoTasksIcon: '🎉',
-    emptyNoMatchIcon: '🔍',
     settingsLabel:   'הגדרות',
   },
   es: {
@@ -54,8 +50,6 @@ export const TRANSLATIONS = {
     emptyNoMatch:    'No hay tareas coincidentes',
     emptyNoTasksSub: 'Agrega una tarea arriba para comenzar.',
     emptyNoMatchSub: 'Intenta ajustar los filtros.',
-    emptyNoTasksIcon: '🎉',
-    emptyNoMatchIcon: '🔍',
     settingsLabel:   'Configuración',
   },
 }

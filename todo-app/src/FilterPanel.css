@@ -80,10 +80,13 @@
 .fp-search-icon {
   position: absolute;
   inset-inline-start: 10px;
-  font-size: 0.78rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  color: var(--text-faint);
   pointer-events: none;
   user-select: none;
-  line-height: 1;
 }
 
 .fp-search {
@@ -113,12 +116,16 @@
 .fp-search-clear {
   position: absolute;
   inset-inline-end: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--text-faint);
-  font-size: 0.72rem;
   cursor: pointer;
-  padding: 2px 4px;
+  padding: 3px;
   border-radius: 4px;
   line-height: 1;
   transition: color 0.12s, background 0.12s;
@@ -274,13 +281,14 @@
 
 /* The × button inside each chip */
 .fp-chip-x {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: none;
   border: none;
   color: var(--primary);
   cursor: pointer;
-  font-size: 0.65rem;
-  line-height: 1;
-  padding: 1px 3px;
+  padding: 2px;
   border-radius: 50%;
   font-family: inherit;
   flex-shrink: 0;

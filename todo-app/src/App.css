@@ -303,6 +303,7 @@ html[data-density="compact"] .header {
 .badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   font-size: 0.7rem;
   font-weight: 600;
   padding: 2px 8px;
@@ -494,7 +495,7 @@ html[data-density="compact"] .header {
   margin-bottom: 16px;
 }
 
-.empty-icon  { font-size: 3rem; margin-bottom: 14px; }
+.empty-icon  { display: flex; justify-content: center; margin-bottom: 14px; color: var(--text-faint); }
 .empty-title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin-bottom: 6px; }
 .empty-text  { font-size: 0.9rem; color: var(--text-muted); }
 
