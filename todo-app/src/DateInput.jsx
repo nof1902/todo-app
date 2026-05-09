@@ -2,18 +2,7 @@ import { useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import './DateInput.css'
-
-const MONTHS_LONG = [
-  'January', 'February', 'March', 'April',
-  'May', 'June', 'July', 'August',
-  'September', 'October', 'November', 'December',
-]
-
-const MONTHS_SHORT = [
-  'Jan', 'Feb', 'Mar', 'Apr',
-  'May', 'Jun', 'Jul', 'Aug',
-  'Sep', 'Oct', 'Nov', 'Dec',
-]
+import { TRANSLATIONS } from './i18n/translations'
 
 // ── ISO ↔ Date conversion ──────────────────────────────────────────
 
@@ -41,21 +30,18 @@ function dateToIso(date) {
 //   Year view:  «  [2020–2031]   »    →  click year  → Month view
 //                                        click month → Day view
 
-function DateInput({ value, onChange, className = '' }) {
-  // 'day' | 'month' | 'year'
-  const [viewMode, setViewMode] = useState('day')
+function DateInput({ value, onChange, className = '', language = 'en' }) {
+  const t = TRANSLATIONS[language] ?? TRANSLATIONS.en
+  const { monthsLong, monthsShort } = t.date
 
-  // First year shown in the 12-year grid (null = not yet calculated)
+  const [viewMode, setViewMode] = useState('day')
   const [yearRangeStart, setYearRangeStart] = useState(null)
 
-  // Open year view centred on the given year
   function openYearView(currentYear) {
     setYearRangeStart(currentYear - 5)
     setViewMode('year')
   }
 
-  // renderHeader is called by react-datepicker on every header render.
-  // It captures viewMode, yearRangeStart, and setters via closure.
   function renderHeader({
     date,
     decreaseMonth,  increaseMonth,
@@ -76,7 +62,7 @@ function DateInput({ value, onChange, className = '' }) {
           <div className="dp-header">
             <button
               type="button" className="dp-nav"
-              title={`Show ${start - 12}–${start - 1}`}
+              title={`${start - 12}–${start - 1}`}
               onClick={() => setYearRangeStart(s => s - 12)}
             >«</button>
 
@@ -84,7 +70,7 @@ function DateInput({ value, onChange, className = '' }) {
 
             <button
               type="button" className="dp-nav"
-              title={`Show ${start + 12}–${start + 23}`}
+              title={`${start + 12}–${start + 23}`}
               onClick={() => setYearRangeStart(s => s + 12)}
             >»</button>
           </div>
@@ -113,30 +99,29 @@ function DateInput({ value, onChange, className = '' }) {
           <div className="dp-header">
             <button
               type="button" className="dp-nav"
-              title="Previous year" onClick={decreaseYear}
+              title={t.date.prevYear} onClick={decreaseYear}
             >«</button>
 
-            {/* Clickable year: drills into year-range picker */}
             <button
               type="button" className="dp-label-btn"
-              title="Select year" onClick={() => openYearView(year)}
+              title={t.date.selectYear} onClick={() => openYearView(year)}
             >
               {year}
             </button>
 
             <button
               type="button" className="dp-nav"
-              title="Next year" onClick={increaseYear}
+              title={t.date.nextYear} onClick={increaseYear}
             >»</button>
           </div>
 
           <div className="dp-picker-body">
-            {MONTHS_SHORT.map((name, i) => (
+            {monthsShort.map((name, i) => (
               <button
                 key={i}
                 type="button"
                 className={`dp-cell${month === i ? ' dp-cell--active' : ''}`}
-                aria-label={MONTHS_LONG[i]}
+                aria-label={monthsLong[i]}
                 aria-pressed={month === i}
                 onClick={() => { changeMonth(i); setViewMode('day') }}
               >
@@ -149,37 +134,36 @@ function DateInput({ value, onChange, className = '' }) {
     }
 
     // ── Day view (default) ───────────────────────────────────────
-    // Clickable "May 2026" label opens month view.
     return (
       <div className="dp-header">
         <button
           type="button" className="dp-nav"
-          title="Previous year" onClick={decreaseYear}
+          title={t.date.prevYear} onClick={decreaseYear}
         >«</button>
 
         <button
           type="button" className="dp-nav"
-          title="Previous month"
+          title={t.date.prevMonth}
           onClick={decreaseMonth} disabled={prevMonthButtonDisabled}
         >‹</button>
 
         <button
           type="button" className="dp-label-btn"
-          title="Select month and year"
+          title={t.date.selectMonthYear}
           onClick={() => setViewMode('month')}
         >
-          {MONTHS_LONG[month]} {year}
+          {monthsLong[month]} {year}
         </button>
 
         <button
           type="button" className="dp-nav"
-          title="Next month"
+          title={t.date.nextMonth}
           onClick={increaseMonth} disabled={nextMonthButtonDisabled}
         >›</button>
 
         <button
           type="button" className="dp-nav"
-          title="Next year" onClick={increaseYear}
+          title={t.date.nextYear} onClick={increaseYear}
         >»</button>
       </div>
     )
@@ -191,23 +175,18 @@ function DateInput({ value, onChange, className = '' }) {
       onChange={date => onChange(dateToIso(date))}
 
       dateFormat="dd/MM/yyyy"
-      placeholderText="dd/mm/yyyy"
+      placeholderText={t.date.placeholder}
 
       className={className}
 
-      // 'is-picker-view' hides the day grid and Today button when
-      // the month or year picker is active.
       calendarClassName={viewMode !== 'day' ? 'app-cal is-picker-view' : 'app-cal'}
 
       renderCustomHeader={renderHeader}
-      todayButton="Today"
+      todayButton={t.date.today}
 
-      // Portal: render outside the modal DOM tree so overflow:hidden
-      // and CSS transform animations cannot clip the popup.
       portalId="dp-root"
       popperPlacement="bottom-start"
 
-      // Always return to day view when the picker closes.
       onCalendarClose={() => { setViewMode('day'); setYearRangeStart(null) }}
     />
   )

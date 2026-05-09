@@ -5,8 +5,8 @@ import TaskModal from './TaskModal'
 import FilterPanel from './FilterPanel'
 import TaskCard from './TaskCard'
 import Settings from './Settings'
-import { useSettings, TRANSLATIONS } from './useSettings'
-import { STATUS_OPTIONS, IMPORTANCE_OPTIONS, getLabel } from './i18n/translations'
+import { useSettings } from './useSettings'
+import { STATUS_OPTIONS, IMPORTANCE_OPTIONS, TRANSLATIONS, getLabel } from './i18n/translations'
 
 // ── Filter default state ──────────────────────────────────────────
 const FILTERS_DEFAULT = {
@@ -37,7 +37,6 @@ function loadTasks() {
     return JSON.parse(raw).map(t => {
       const status = t.status ?? (t.completed ? 'completed' : 'not-started')
       const task = { ...TASK_SHAPE, ...t, status }
-      // Migrate old single dueDate → endDate
       if (t.dueDate && !t.endDate) task.endDate = t.dueDate
       delete task.dueDate
       return task
@@ -114,9 +113,9 @@ function App() {
 
   useEffect(() => { saveTasks(tasks) }, [tasks])
 
-  // Active UI strings and flat translated option arrays, recomputed when language changes
+  // Active language set and pre-translated option arrays, recomputed on language change
   const lang            = settings.language
-  const UI              = TRANSLATIONS[lang] ?? TRANSLATIONS.en
+  const t               = TRANSLATIONS[lang] ?? TRANSLATIONS.en
   const statusOptions   = STATUS_OPTIONS.map(o => ({ ...o, label: getLabel(o, lang) }))
   const importanceOptions = IMPORTANCE_OPTIONS.map(o => ({ ...o, label: getLabel(o, lang) }))
 
@@ -147,28 +146,27 @@ function App() {
   }
 
   function handleSaveTask(updated) {
-    setTasks(prev => prev.map(t => t.id === updated.id ? updated : t))
+    setTasks(prev => prev.map(task => task.id === updated.id ? updated : task))
     setEditingTask(null)
   }
 
   function handleDeleteTask(id) {
-    setTasks(prev => prev.filter(t => t.id !== id))
+    setTasks(prev => prev.filter(task => task.id !== id))
     setEditingTask(null)
   }
 
   function handleQuickComplete(id) {
-    setTasks(prev => prev.map(t =>
-      t.id === id
-        ? { ...t, status: t.status === 'completed' ? 'not-started' : 'completed' }
-        : t
+    setTasks(prev => prev.map(task =>
+      task.id === id
+        ? { ...task, status: task.status === 'completed' ? 'not-started' : 'completed' }
+        : task
     ))
   }
 
   function handleClearCompleted() {
-    setTasks(prev => prev.filter(t => t.status !== 'completed'))
+    setTasks(prev => prev.filter(task => task.status !== 'completed'))
   }
 
-  // Apply all active filters simultaneously
   const filteredTasks = tasks.filter(task => {
     if (!settings.showCompleted && task.status === 'completed') return false
     if (filters.status !== 'all' && task.status !== filters.status) return false
@@ -187,8 +185,8 @@ function App() {
     filters.search.trim() !== '',
   ].filter(Boolean).length
 
-  const activeCount    = tasks.filter(t => t.status !== 'completed').length
-  const completedCount = tasks.filter(t => t.status === 'completed').length
+  const activeCount    = tasks.filter(task => task.status !== 'completed').length
+  const completedCount = tasks.filter(task => task.status === 'completed').length
 
   return (
     <div className="app">
@@ -197,33 +195,31 @@ function App() {
         <header className="header">
           <div className="header-icon"><Check size={22} strokeWidth={3} aria-hidden="true" /></div>
           <div className="header-text">
-            <h1 className="title">{UI.appTitle}</h1>
-            <p className="subtitle">{UI.appSubtitle}</p>
+            <h1 className="title">{t.app.title}</h1>
+            <p className="subtitle">{t.app.subtitle}</p>
           </div>
           <button
             type="button"
             className="settings-btn"
             onClick={() => setSettingsOpen(true)}
-            aria-label={UI.settingsLabel}
-            title={UI.settingsLabel}
+            aria-label={t.settings.title}
+            title={t.settings.title}
           >
             <SettingsIcon size={18} aria-hidden="true" />
           </button>
         </header>
 
-        {/* Quick-add form */}
         <form className="add-task-card" onSubmit={handleAddTask}>
           <input
             type="text"
             className="task-input"
-            placeholder={UI.addPlaceholder}
+            placeholder={t.app.addPlaceholder}
             value={newText}
             onChange={e => setNewText(e.target.value)}
           />
-          <button className="add-btn" type="submit">{UI.addButton}</button>
+          <button className="add-btn" type="submit">{t.app.addButton}</button>
         </form>
 
-        {/* Filter panel */}
         <FilterPanel
           filters={filters}
           onFilterChange={handleFilterChange}
@@ -234,7 +230,6 @@ function App() {
           language={lang}
         />
 
-        {/* Task list */}
         {filteredTasks.length > 0 ? (
           <ul className="task-list">
             {filteredTasks.map(task => (
@@ -258,19 +253,19 @@ function App() {
                 : <ClipboardList size={44} strokeWidth={1.5} aria-hidden="true" />}
             </div>
             <p className="empty-title">
-              {activeFilterCount > 0 ? UI.emptyNoMatch : UI.emptyNoTasks}
+              {activeFilterCount > 0 ? t.app.emptyNoMatch : t.app.emptyNoTasks}
             </p>
             <p className="empty-text">
-              {activeFilterCount > 0 ? UI.emptyNoMatchSub : UI.emptyNoTasksSub}
+              {activeFilterCount > 0 ? t.app.emptyNoMatchSub : t.app.emptyNoTasksSub}
             </p>
           </div>
         )}
 
         <div className="footer">
-          <span className="task-count">{UI.remaining(activeCount)}</span>
+          <span className="task-count">{t.app.remaining(activeCount)}</span>
           {completedCount > 0 && (
             <button className="clear-btn" onClick={handleClearCompleted}>
-              {UI.clearCompleted(completedCount)}
+              {t.app.clearCompleted(completedCount)}
             </button>
           )}
         </div>

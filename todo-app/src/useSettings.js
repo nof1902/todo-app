@@ -12,48 +12,6 @@ export const SETTINGS_DEFAULTS = {
   language:          'en',           // 'en' | 'he' | 'es'
 }
 
-export const TRANSLATIONS = {
-  en: {
-    appTitle:        'My Tasks',
-    appSubtitle:     'Stay organized, stay focused',
-    addPlaceholder:  'Add a new task…',
-    addButton:       '+ Add',
-    remaining:       n => `${n} ${n === 1 ? 'task' : 'tasks'} remaining`,
-    clearCompleted:  n => `Clear ${n} completed`,
-    emptyNoTasks:    'No tasks yet!',
-    emptyNoMatch:    'No matching tasks',
-    emptyNoTasksSub: 'Add a task above to get started.',
-    emptyNoMatchSub: 'Try adjusting your filters.',
-    settingsLabel:   'Settings',
-  },
-  he: {
-    appTitle:        'המשימות שלי',
-    appSubtitle:     'כל המשימות, במקום אחד.',
-    addPlaceholder:  'הוסף משימה חדשה…',
-    addButton:       '+ הוסף',
-    remaining:       n => `נותרו ${n} ${n === 1 ? 'משימה' : 'משימות'}`,
-    clearCompleted:  n => `נקה ${n} שהושלמו`,
-    emptyNoTasks:    '!אין משימות עדיין',
-    emptyNoMatch:    'לא נמצאו משימות',
-    emptyNoTasksSub: 'הוסף משימה למעלה כדי להתחיל.',
-    emptyNoMatchSub: 'נסה לשנות את הפילטרים.',
-    settingsLabel:   'הגדרות',
-  },
-  es: {
-    appTitle:        'Mis Tareas',
-    appSubtitle:     'Organízate, mantén el foco',
-    addPlaceholder:  'Agregar una tarea nueva…',
-    addButton:       '+ Agregar',
-    remaining:       n => `${n} ${n === 1 ? 'tarea pendiente' : 'tareas pendientes'}`,
-    clearCompleted:  n => `Eliminar ${n} completadas`,
-    emptyNoTasks:    '¡Sin tareas aún!',
-    emptyNoMatch:    'No hay tareas coincidentes',
-    emptyNoTasksSub: 'Agrega una tarea arriba para comenzar.',
-    emptyNoMatchSub: 'Intenta ajustar los filtros.',
-    settingsLabel:   'Configuración',
-  },
-}
-
 function loadSettings() {
   try {
     const raw = localStorage.getItem(KEY)
